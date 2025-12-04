@@ -29,43 +29,49 @@ void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgS
 	}
 }
 
-void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGround, const float &gravity, float &terminal_Velocity, float &player_x, float &player_y, const int cell_size, int &Pheight, int &Pwidth)
+void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGround,
+                    const float &gravity, float &terminal_Velocity,
+                    float &player_x, float &player_y,
+                    const int cell_size, int &Pheight, int &Pwidth)
 {
 	// enforce top bound
-	if (player_y < cell_size) {
-		player_y = cell_size;
-		velocityY = 0;
-	}
-	offset_y = player_y;
+    if (player_y < cell_size) {
+        player_y = cell_size;
+        velocityY = 0;
+    }
+    offset_y = player_y + velocityY;
 
-	offset_y += velocityY;
+    // Horizontal range
+    int leftCell  = (int)(player_x) / cell_size;
+    int rightCell = (int)(player_x + Pwidth - 1) / cell_size;
 
-	char bottom_left_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)(player_x) / cell_size];
-	char bottom_right_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)(player_x + Pwidth) / cell_size];
-	char bottom_mid_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)(player_x + Pwidth / 2) / cell_size];
+    // Bottom cell only (feet)
+    int bottomCell = (int)(offset_y + Pheight) / cell_size;
 
-	if (bottom_left_down == '#' || bottom_mid_down == '#' || bottom_right_down == '#')
-	{
-		onGround = true;
-	}
-	else
-	{
-		player_y = offset_y;
-		onGround = false;
-	}
+    // Check if feet are landing on a platform
+    onGround = false;
+    for (int x = leftCell; x <= rightCell; x++) {
+        if (lvl[bottomCell][x] == '#') {
+            // Only snap if feet are touching top of platform
+            if (player_y + Pheight <= bottomCell * cell_size) {
+                offset_y = bottomCell * cell_size - Pheight;
+                velocityY = 0;
+                onGround = true;
+            }
+            break;
+        }
+    }
 
-	if (!onGround)
-	{
-		velocityY += gravity;
-		if (velocityY >= terminal_Velocity)
-			velocityY = terminal_Velocity;
-	}
+    if (!onGround) {
+        velocityY += gravity;
+        if (velocityY > terminal_Velocity)
+            velocityY = terminal_Velocity;
+    }
 
-	else
-	{
-		velocityY = 0;
-	}
+    player_y = offset_y;
 }
+
+
 
 int main()
 {
@@ -143,7 +149,7 @@ int main()
 	char top_mid_up = '\0';
 	char top_left_up = '\0';
 
-	PlayerTexture.loadFromFile("Data/player1.png");
+	PlayerTexture.loadFromFile("Data/player1_walk1.png");
 	PlayerSprite.setTexture(PlayerTexture);
 	PlayerSprite.setScale(3, 3);
 	PlayerSprite.setPosition(player_x, player_y);
@@ -250,9 +256,20 @@ int main()
 	Sprite newScreenSprite;
 	newScreenSprite.setTexture(newScreenTex);
 
+	Texture player1_walk1, player1_walk2;
+	Texture player2_walk1, player2_walk2;
+
+	player1_walk1.loadFromFile("Data/player1_walk1.png");
+	player1_walk2.loadFromFile("Data/player1_walk2.png");
+	player2_walk1.loadFromFile("Data/player2_walk1.png");
+	player2_walk2.loadFromFile("Data/player2_walk2.png");
+
+	Texture* walk1;
+	Texture* walk2;
+
 	// Player1
 	Texture player1tex;
-	player1tex.loadFromFile("Data/player1.png");
+	player1tex.loadFromFile("Data/player1_walk1.png");
 	Sprite player1sprite;
 	player1sprite.setTexture(player1tex);
 	player1sprite.setScale(4, 4);
@@ -260,7 +277,7 @@ int main()
 
 	// Player2
 	Texture player2tex;
-	player2tex.loadFromFile("Data/player2.png");
+	player2tex.loadFromFile("Data/player2_walk1.png");
 	Sprite player2sprite;
 	player2sprite.setTexture(player2tex);
 	player2sprite.setScale(4, 4);
@@ -305,12 +322,16 @@ int main()
 				if (!onIntro && ev.key.code == Keyboard::Num1)
 				{
 					player_select = true;
-					PlayerSprite.setTexture(player1tex);
+					walk1 = &player1_walk1;
+    				walk2 = &player1_walk2;
+					PlayerSprite.setTexture(*walk1);
 				}
 				if (!onIntro && ev.key.code == Keyboard::Num2)
 				{
 					player_select = true;
-					PlayerSprite.setTexture(player2tex);
+					walk1 = &player2_walk1;
+    				walk2 = &player2_walk2;
+					PlayerSprite.setTexture(*walk1);
 				}
 			}
 			
@@ -339,7 +360,8 @@ int main()
 	// Main loop
 	while (window.isOpen())
 	{
-		
+		static int walkCounter = 0;
+		const int walkSpeed = 10;
 		Event ev;
 		while (window.pollEvent(ev))
 		{
@@ -369,6 +391,21 @@ int main()
 
 		if (Keyboard::isKeyPressed(Keyboard::Escape)) // close
 			window.close();
+		
+		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left) ||
+			Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right))
+		{
+			walkCounter++;
+			if (walkCounter / walkSpeed % 2 == 0)
+				PlayerSprite.setTexture(*walk1);
+			else
+				PlayerSprite.setTexture(*walk2);
+		}
+		else
+		{
+			walkCounter = 0;
+			PlayerSprite.setTexture(*walk1); // idle frame
+		}
 
 		// Clear and draw
 		window.clear();
