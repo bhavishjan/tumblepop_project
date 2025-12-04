@@ -8,7 +8,7 @@
 using namespace sf;
 using namespace std;
 
-int screen_x = 1134;
+int screen_x = 1136;
 int screen_y = 896;
 
 void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgSprite, Texture &blockTexture, Sprite &blockSprite, const int height, const int width, const int cell_size)
@@ -35,8 +35,7 @@ void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGroun
                     const int cell_size, int &Pheight, int &Pwidth)
 {
 	// enforce top bound
-    if (player_y < 0) 
-	{
+    if (player_y < 0) {
         player_y = 0;
         velocityY = 0;
     }
@@ -77,9 +76,10 @@ void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGroun
 int main()
 {
 
-	RenderWindow window(VideoMode(screen_x, screen_y), "GAME", Style::Default);
+	RenderWindow window(VideoMode(screen_x, screen_y), "Tumble Pop", Style::Resize);
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(60);
+
 
 	// level specifics
 	const int cell_size = 64;
@@ -166,9 +166,7 @@ int main()
 
 	// Ground
 	for (int j = 0; j < width; j++)
-    	lvl[13][j] = '#';
-	
-	
+    	lvl[13][j] = '#';	
 	
 	// Left Down Platform
 	lvl[10][1] = '#';
@@ -228,24 +226,16 @@ int main()
 	lvlMusic.setLoop(true);
 
 	// Intro screen
-	Texture introTexture;
-	introTexture.loadFromFile("Data/intro.jpg");
-	Sprite introSprite;
-	introSprite.setTexture(introTexture);
+	Texture introscreenTexture;
+	introscreenTexture.loadFromFile("Data/intro_screen.jpg");
+	Sprite introscreenSprite;
+	introscreenSprite.setTexture(introscreenTexture);
 
-	// Start button
-	Texture startTex;
-	startTex.loadFromFile("Data/start_button.png");
-	Sprite startSprite;
-	startSprite.setTexture(startTex);
-	startSprite.setScale(0.5, 0.5);
-	startSprite.setPosition(screen_x / 2 - 120, screen_y / 2 + 300);
-
-	// New screen texture
-	Texture newScreenTex;
-	newScreenTex.loadFromFile("Data/newscreen.png");
-	Sprite newScreenSprite;
-	newScreenSprite.setTexture(newScreenTex);
+	// Player Select Screen
+	Texture playerselectTex;
+	playerselectTex.loadFromFile("Data/player_select.jpg");
+	Sprite playerselectSprite;
+	playerselectSprite.setTexture(playerselectTex);
 
 	Texture player1_walk1, player1_walk2;
 	Texture player2_walk1, player2_walk2;
@@ -273,22 +263,6 @@ int main()
 	player2sprite.setTexture(player2tex);
 	player2sprite.setScale(4, 4);
 	player2sprite.setPosition(700, 300);
-
-	// press1
-	Texture press1tex;
-	press1tex.loadFromFile("Data/press1.png");
-	Sprite press1sprite;
-	press1sprite.setTexture(press1tex);
-	press1sprite.setScale(0.5, 0.5);
-	press1sprite.setPosition(270, 450);
-
-	// press2
-	Texture press2tex;
-	press2tex.loadFromFile("Data/press2.png");
-	Sprite press2sprite;
-	press2sprite.setTexture(press2tex);
-	press2sprite.setScale(0.5, 0.5);
-	press2sprite.setPosition(660, 450);
 
 	// State flag
 	bool onIntro = true;
@@ -330,18 +304,10 @@ int main()
 		
 		window.clear();
 		if (onIntro)
-		{
-			window.draw(introSprite);
-			window.draw(startSprite);
-		}
+			window.draw(introscreenSprite);
 		else
-		{
-			window.draw(newScreenSprite);
-			window.draw(player1sprite);
-			window.draw(player2sprite);
-			window.draw(press1sprite);
-			window.draw(press2sprite);
-		}
+			window.draw(playerselectSprite);
+
 		window.display();
 		if (player_select)
 				break;
