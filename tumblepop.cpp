@@ -8,7 +8,7 @@
 using namespace sf;
 using namespace std;
 
-int screen_x = 1152;
+int screen_x = 1134;
 int screen_y = 896;
 
 void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgSprite, Texture &blockTexture, Sprite &blockSprite, const int height, const int width, const int cell_size)
@@ -35,8 +35,9 @@ void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGroun
                     const int cell_size, int &Pheight, int &Pwidth)
 {
 	// enforce top bound
-    if (player_y < cell_size) {
-        player_y = cell_size;
+    if (player_y < 0) 
+	{
+        player_y = 0;
         velocityY = 0;
     }
     offset_y = player_y + velocityY;
@@ -76,7 +77,7 @@ void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGroun
 int main()
 {
 
-	RenderWindow window(VideoMode(screen_x, screen_y), "Tumble-POP", Style::Default);
+	RenderWindow window(VideoMode(screen_x, screen_y), "GAME", Style::Default);
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(60);
 
@@ -167,17 +168,7 @@ int main()
 	for (int j = 0; j < width; j++)
     	lvl[13][j] = '#';
 	
-	//top row
-	for (int j = 0; j < width; j++)
-    	lvl[0][j] = '#';
 	
-	//level wall
-	for (int j = 0; j < height; j++)
-    	lvl[j][0] = '#';
-	
-	//right wall
-	for (int j = 0; j < height; j++)
-    	lvl[j][17] = '#';
 	
 	// Left Down Platform
 	lvl[10][1] = '#';
@@ -373,14 +364,14 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left)) // move left
 		{
 			player_x -= 5;
-			if (player_x < cell_size) // left bound
-				player_x = cell_size;  
+			if (player_x < 0) // left bound
+				player_x = 0;  
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right)) // move right
 		{
 			player_x += 5;
-			if (player_x + PlayerWidth > screen_x-cell_size)  // right bound
-        		player_x = screen_x - PlayerWidth-cell_size;
+			if (player_x + PlayerWidth > screen_x)  // right bound
+        		player_x = screen_x - PlayerWidth;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::Space)) && onGround) // jump
