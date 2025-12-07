@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
@@ -10,6 +12,7 @@ using namespace std;
 
 int screen_x = 1136;
 int screen_y = 896;
+
 
 void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgSprite, Texture &blockTexture, Sprite &blockSprite, const int height, const int width, const int cell_size)
 {
@@ -34,6 +37,7 @@ void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGroun
                     float &player_x, float &player_y,
                     const int cell_size, int &Pheight, int &Pwidth)
 {
+	
 	// enforce top bound
     if (player_y < 0) {
         player_y = 0;
@@ -80,7 +84,7 @@ int main()
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(60);
 
-
+	srand(time(0));
 	// level specifics
 	const int cell_size = 64;
 	const int height = 14;
@@ -150,7 +154,7 @@ int main()
 	char top_mid_up = '\0';
 	char top_left_up = '\0';
 
-	PlayerTexture.loadFromFile("Data/player1_walk1.png");
+	PlayerTexture.loadFromFile("Data/player1.png");
 	PlayerSprite.setTexture(PlayerTexture);
 	PlayerSprite.setScale(3, 3);
 	PlayerSprite.setPosition(player_x, player_y);
@@ -168,54 +172,66 @@ int main()
 	for (int j = 0; j < width; j++)
     	lvl[13][j] = '#';	
 	
-	// Left Down Platform
-	lvl[10][1] = '#';
-	lvl[10][2] = '#';
-	lvl[10][3] = '#';
+	
+	// Mid Top & Mid Bottom Platforms
+	for(int i=2; i<16; i++)
+	{
+		lvl[3][i] = '#';
+		lvl[11][i] = '#';
+	}
+	
 
-	// Right Down Platform
-	lvl[10][14] = '#';
-	lvl[10][15] = '#';
-	lvl[10][16] = '#';
+	//Mid Pattern
+	lvl[4][8] = '#';
+	lvl[4][9] = '#';
 
-	// Platform
-	lvl[7][1] = '#';
-	lvl[7][2] = '#';
-	lvl[7][3] = '#';
+	lvl[5][1] = '#';
+	lvl[5][2] = '#';
+	lvl[5][3] = '#';
+	lvl[5][4] = '#';
+	lvl[5][7] = '#';
+	lvl[5][8] = '#';
+	lvl[5][9] = '#';
+	lvl[5][10] = '#';
+	lvl[5][13] = '#';
+	lvl[5][14] = '#';
+	lvl[5][15] = '#';
+	lvl[5][16] = '#';
 
-	//Platform
-	lvl[7][14] = '#';
-	lvl[7][15] = '#';
-	lvl[7][16] = '#';
-
-	//Platform
-	lvl[4][1] = '#';
-	lvl[4][2] = '#';
-	lvl[4][3] = '#';
-
-	//Platform
-	lvl[4][14] = '#';
-	lvl[4][15] = '#';
-	lvl[4][16] = '#';
-
-	// Mid Top Platform
-	lvl[3][7] = '#';
-	lvl[3][8] = '#';
-	lvl[3][9] = '#';
-	lvl[3][10] = '#';
-
-	// Mid Mid Platform
 	lvl[6][7] = '#';
-	lvl[6][8] = '#';
-	lvl[6][9] = '#';
 	lvl[6][10] = '#';
 
-	// Mid Down Platform
+	lvl[7][3] = '#';
+	lvl[7][4] = '#';
+	lvl[7][5] = '#';
+	lvl[7][6] = '#';
+	lvl[7][7] = '#';
+	lvl[7][10] = '#';
+	lvl[7][11] = '#';
+	lvl[7][12] = '#';
+	lvl[7][13] = '#';
+	lvl[7][14] = '#';
+	lvl[7][15] = '#';
+	
+
+	lvl[8][7] = '#';
+	lvl[8][10] = '#';
+
+	lvl[9][1] = '#';
+	lvl[9][2] = '#';
+	lvl[9][3] = '#';
+	lvl[9][4] = '#';
 	lvl[9][7] = '#';
 	lvl[9][8] = '#';
 	lvl[9][9] = '#';
 	lvl[9][10] = '#';
+	lvl[9][13] = '#';
+	lvl[9][14] = '#';
+	lvl[9][15] = '#';
+	lvl[9][16] = '#';
 	
+	lvl[10][8] = '#';
+	lvl[10][9] = '#';
 	
 	// Music initialisation
 	Music lvlMusic;
@@ -237,20 +253,25 @@ int main()
 	Sprite playerselectSprite;
 	playerselectSprite.setTexture(playerselectTex);
 
-	Texture player1_walk1, player1_walk2;
-	Texture player2_walk1, player2_walk2;
+	// For walking animation
+	// Texture player1_walk1, player1_walk2, player1_walk3, player1_walk4;
+	// Texture player2_walk1, player2_walk2;
 
-	player1_walk1.loadFromFile("Data/player1_walk1.png");
-	player1_walk2.loadFromFile("Data/player1_walk2.png");
-	player2_walk1.loadFromFile("Data/player2_walk1.png");
-	player2_walk2.loadFromFile("Data/player2_walk2.png");
+	// player1_walk1.loadFromFile("Data/player1_walk1.png");
+	// player1_walk2.loadFromFile("Data/player1_walk2.png");
+	// player1_walk1.loadFromFile("Data/player1_walk3.png");
+	// player1_walk2.loadFromFile("Data/player1_walk4.png");
+	// player2_walk1.loadFromFile("Data/player2_walk1.png");
+	// player2_walk2.loadFromFile("Data/player2_walk2.png");
 
-	Texture* walk1;
-	Texture* walk2;
+	// Texture* walk1;
+	// Texture* walk2;
+	// Texture* walk3;
+	// Texture* walk4;
 
 	// Player1
 	Texture player1tex;
-	player1tex.loadFromFile("Data/player1_walk1.png");
+	player1tex.loadFromFile("Data/player1.png");
 	Sprite player1sprite;
 	player1sprite.setTexture(player1tex);
 	player1sprite.setScale(4, 4);
@@ -258,11 +279,55 @@ int main()
 
 	// Player2
 	Texture player2tex;
-	player2tex.loadFromFile("Data/player2_walk1.png");
+	player2tex.loadFromFile("Data/player2.png");
 	Sprite player2sprite;
 	player2sprite.setTexture(player2tex);
 	player2sprite.setScale(4, 4);
 	player2sprite.setPosition(700, 300);
+
+	//Ghosts
+	const int ghostCount = 8;
+
+	Sprite ghostSprite[ghostCount];
+	Texture ghostTexture[ghostCount];
+	bool ghostMovingRight[ghostCount];
+	float ghostSpeed[ghostCount];
+
+	for (int i = 0; i < ghostCount; i++) 
+	{
+		ghostTexture[i].loadFromFile("Data/ghost.png");
+		ghostSprite[i].setTexture(ghostTexture[i]);
+		ghostSprite[i].setScale(3, 3);
+
+		ghostMovingRight[i] = true;
+		ghostSpeed[i] = 1;
+
+		
+    	ghostSprite[i].setPosition(rand() % 1028, (rand() % 12) * cell_size);
+	}
+
+	//skeletons
+	const int skeletonCount = 4;
+
+	Sprite skeletonSprite[skeletonCount];
+	Texture skeletonTexture[skeletonCount];
+	bool skeletonMovingRight[skeletonCount];
+	float skeletonSpeed[skeletonCount];
+
+	for (int i = 0; i < skeletonCount; i++) 
+	{
+		skeletonTexture[i].loadFromFile("Data/skeleton.png");
+		skeletonSprite[i].setTexture(skeletonTexture[i]);
+		skeletonSprite[i].setScale(3, 3);
+
+		skeletonMovingRight[i] = true;
+		skeletonSpeed[i] = 0.1;
+
+    	skeletonSprite[i].setPosition(rand() % 1040, (rand() % 12)* cell_size);
+	}
+
+
+
 
 	// State flag
 	bool onIntro = true;
@@ -287,16 +352,18 @@ int main()
 				if (!onIntro && ev.key.code == Keyboard::Num1)
 				{
 					player_select = true;
-					walk1 = &player1_walk1;
-    				walk2 = &player1_walk2;
-					PlayerSprite.setTexture(*walk1);
+					// walk1 = &player1_walk1;
+    				// walk2 = &player1_walk2;
+					// walk3 = &player1_walk3;
+    				// walk4 = &player1_walk4;
+					PlayerSprite.setTexture(player1tex);
 				}
 				if (!onIntro && ev.key.code == Keyboard::Num2)
 				{
 					player_select = true;
-					walk1 = &player2_walk1;
-    				walk2 = &player2_walk2;
-					PlayerSprite.setTexture(*walk1);
+					// walk1 = &player2_walk1;
+    				// walk2 = &player2_walk2;
+					PlayerSprite.setTexture(player2tex);
 				}
 			}
 			
@@ -312,6 +379,7 @@ int main()
 		if (player_select)
 				break;
 	}
+	bool facingRight = false;
 
 	Event ev;
 	// Main loop
@@ -332,12 +400,24 @@ int main()
 			player_x -= 5;
 			if (player_x < 0) // left bound
 				player_x = 0;  
+			if (facingRight) 
+			{
+				facingRight = false;
+				PlayerSprite.setScale(3, 3); // flipped horizontally
+				player_x -= PlayerWidth;
+			}
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right)) // move right
 		{
 			player_x += 5;
-			if (player_x + PlayerWidth > screen_x)  // right bound
-        		player_x = screen_x - PlayerWidth;
+			if (player_x > screen_x)  // right bound
+        		player_x = screen_x;
+			if (!facingRight) 
+			{
+				facingRight = true;
+				PlayerSprite.setScale(-3, 3); // normal scale
+				player_x += PlayerWidth; 
+			}
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::Space)) && onGround) // jump
@@ -348,21 +428,60 @@ int main()
 
 		if (Keyboard::isKeyPressed(Keyboard::Escape)) // close
 			window.close();
+
+		//Ghosts movement
+		for (int i = 0; i < ghostCount; i++) {
+		if (ghostMovingRight[i]) {
+			ghostSprite[i].move(ghostSpeed[i], 0);
+
+			if (ghostSprite[i].getPosition().x > 600)
+				ghostMovingRight[i] = false;
+		} 
+		else {
+			ghostSprite[i].move(-ghostSpeed[i], 0);
+
+			if (ghostSprite[i].getPosition().x < 100)
+				ghostMovingRight[i] = true;
+		}
+
+		//Skeleton Movement
+		for (int i = 0; i < skeletonCount; i++) {
+		if (skeletonMovingRight[i]) {
+			skeletonSprite[i].move(skeletonSpeed[i], 0);
+
+			if (skeletonSprite[i].getPosition().x > 650)
+				skeletonMovingRight[i] = false;
+		} 
+		else {
+			skeletonSprite[i].move(-skeletonSpeed[i], 0);
+
+			if (skeletonSprite[i].getPosition().x < 80)
+				skeletonMovingRight[i] = true;
+		}
+	}
+
+	}
+
 		
-		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left) ||
-			Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right))
-		{
-			walkCounter++;
-			if (walkCounter / walkSpeed % 2 == 0)
-				PlayerSprite.setTexture(*walk1);
-			else
-				PlayerSprite.setTexture(*walk2);
-		}
-		else
-		{
-			walkCounter = 0;
-			PlayerSprite.setTexture(*walk1); // idle frame
-		}
+		// Walking animation
+		// if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left) ||
+		// 	Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right))
+		// {
+		// 	walkCounter++;
+		// 	if (walkCounter / walkSpeed % 2 == 0)
+		// 		PlayerSprite.setTexture(*walk1);
+		// 	else if (walkCounter / walkSpeed % 2 == 1)
+		// 		PlayerSprite.setTexture(*walk2);
+		// 	else if (walkCounter / walkSpeed % 2 == 2)
+		// 		PlayerSprite.setTexture(*walk3);
+		// 	else
+		// 		PlayerSprite.setTexture(*walk4);
+		// }
+		// else
+		// {
+		// 	walkCounter = 0;
+		// 	PlayerSprite.setTexture(*walk1); // idle frame
+		// }
 
 		// Clear and draw
 		window.clear();
@@ -370,6 +489,16 @@ int main()
 		player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth);
 		PlayerSprite.setPosition(player_x, player_y);
 		window.draw(PlayerSprite);
+		for (int i = 0; i < ghostCount; i++) 
+		{
+			window.draw(ghostSprite[i]);
+		}
+		for (int i = 0; i < skeletonCount; i++) 
+		{
+			window.draw(skeletonSprite[i]);
+		}
+
+
 		window.display();
 	}
 
