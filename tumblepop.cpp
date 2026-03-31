@@ -32,47 +32,107 @@ void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgS
 	}
 }
 
+bool is_solid_tile(char **lvl, int row, int col, const int height, const int width)
+{
+	if (row < 0 || row >= height || col < 0 || col >= width)
+		return false;
+	return lvl[row][col] == '#';
+}
+
+void player_horizontal_collision(char **lvl, float &player_x, float player_y, float moveX, const int cell_size,
+								 const int Pheight, const int Pwidth, const int height, const int width)
+{
+	float nextX = player_x + moveX;
+
+	int topCell = static_cast<int>(player_y) / cell_size;
+	int bottomCell = static_cast<int>(player_y + Pheight - 1) / cell_size;
+
+	if (moveX > 0)
+	{
+		int rightCell = static_cast<int>(nextX + Pwidth - 1) / cell_size;
+		for (int row = topCell; row <= bottomCell; row++)
+		{
+			if (is_solid_tile(lvl, row, rightCell, height, width))
+			{
+				nextX = rightCell * cell_size - Pwidth;
+				break;
+			}
+		}
+	}
+	else if (moveX < 0)
+	{
+		int leftCell = static_cast<int>(nextX) / cell_size;
+		for (int row = topCell; row <= bottomCell; row++)
+		{
+			if (is_solid_tile(lvl, row, leftCell, height, width))
+			{
+				nextX = (leftCell + 1) * cell_size;
+				break;
+			}
+		}
+	}
+
+	float maxX = width * cell_size - Pwidth;
+	if (nextX < 0)
+		nextX = 0;
+	if (nextX > maxX)
+		nextX = maxX;
+
+	player_x = nextX;
+}
+
 void player_gravity(char **lvl, float &offset_y, float &velocityY, bool &onGround,
                     const float &gravity, float &terminal_Velocity,
                     float &player_x, float &player_y,
-                    const int cell_size, int &Pheight, int &Pwidth)
+                    const int cell_size, int &Pheight, int &Pwidth, const int height, const int width)
 {
-	
-	// enforce top bound
-    if (player_y < 0) {
-        player_y = 0;
-        velocityY = 0;
-    }
-    offset_y = player_y + velocityY;
+	if (velocityY < terminal_Velocity)
+		velocityY += gravity;
+	if (velocityY > terminal_Velocity)
+		velocityY = terminal_Velocity;
 
-    // Horizontal range
-    int leftCell  = (int)(player_x) / cell_size;
-    int rightCell = (int)(player_x + Pwidth - 1) / cell_size;
+	offset_y = player_y + velocityY;
 
-    // Bottom cell only (feet)
-    int bottomCell = (int)(offset_y + Pheight) / cell_size;
+	int leftCell = static_cast<int>(player_x) / cell_size;
+	int rightCell = static_cast<int>(player_x + Pwidth - 1) / cell_size;
 
-    // Check if feet are landing on a platform
-    onGround = false;
-    for (int x = leftCell; x <= rightCell; x++) {
-        if (lvl[bottomCell][x] == '#') {
-            // Only snap if feet are touching top of platform
-            if (player_y + Pheight <= bottomCell * cell_size) {
-                offset_y = bottomCell * cell_size - Pheight;
-                velocityY = 0;
-                onGround = true;
-            }
-            break;
-        }
-    }
+	onGround = false;
 
-    if (!onGround) {
-        velocityY += gravity;
-        if (velocityY > terminal_Velocity)
-            velocityY = terminal_Velocity;
-    }
+	if (velocityY >= 0)
+	{
+		int bottomCell = static_cast<int>(offset_y + Pheight - 1) / cell_size;
+		for (int col = leftCell; col <= rightCell; col++)
+		{
+			if (is_solid_tile(lvl, bottomCell, col, height, width))
+			{
+				offset_y = bottomCell * cell_size - Pheight;
+				velocityY = 0;
+				onGround = true;
+				break;
+			}
+		}
+	}
+	else
+	{
+		int topCell = static_cast<int>(offset_y) / cell_size;
+		for (int col = leftCell; col <= rightCell; col++)
+		{
+			if (is_solid_tile(lvl, topCell, col, height, width))
+			{
+				offset_y = (topCell + 1) * cell_size;
+				velocityY = 0;
+				break;
+			}
+		}
+	}
 
-    player_y = offset_y;
+	if (offset_y < 0)
+	{
+		offset_y = 0;
+		velocityY = 0;
+	}
+
+	player_y = offset_y;
 }
 
 
@@ -387,31 +447,27 @@ int main()
 		}
 
 		// Smooth movement and jump
+		float moveX = 0;
 		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left)) // move left
 		{
-			player_x -= speed;
-			if (player_x < 0) // left bound
-				player_x = 0;  
+			moveX -= speed;
 			
 			if (facingRight) 
 			{
 				facingRight = false;
 				PlayerSprite.setScale(2, 2); // flipped horizontally
-				player_x -= PlayerWidth;
 			}
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right)) // move right
 		{
-			player_x += speed;
-			if (player_x > screen_x)  // right bound
-        		player_x = screen_x;
+			moveX += speed;
 			if (!facingRight) 
 			{
 				facingRight = true;
 				PlayerSprite.setScale(-2, 2); // normal scale
-				player_x += PlayerWidth; 
 			}
 		}
+		player_horizontal_collision(lvl, player_x, player_y, moveX, cell_size, PlayerHeight, PlayerWidth, height, width);
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::Space)) && onGround) // jump
 		{
@@ -502,7 +558,7 @@ int main()
 		// Clear and draw
 		window.clear();
 		display_level(window, lvl, bgTex, bgSprite, blockTexture, blockSprite, height, width, cell_size);
-		player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth);
+		player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, height, width);
 		PlayerSprite.setPosition(player_x, player_y);
 		window.draw(PlayerSprite);
 		for (int i = 0; i < ghostCount; i++) 
