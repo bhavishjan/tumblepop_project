@@ -9,6 +9,7 @@ But, in the process, I learned about the game, C++ and SFML libraries a lot.
 Will try to make something better than this.
 <br>
 
-If you are on linux, there are compiling instructions in steps_to_compile.txt, if you are using windows, you should have SFML installed and then run the cpp file directly with assests folder in the solution directory using Visual Studio or any IDE of your choice.
+If you are on linux, there are compiling instructions in steps_to_compile.txt in main branch.
+if you are using windows, there is a ready to run code for Visual Studio, branch is named vs_ready_branch (you should have SFML installed).
 
 Cheers!
