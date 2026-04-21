@@ -10,6 +10,7 @@ Will try to make something better than this.
 <br>
 
 If you are on linux, there are compiling instructions in steps_to_compile.txt in main branch.
-if you are using windows, there is a ready to run code for Visual Studio, branch is named windows_branch (you should have SFML installed).
+<br>
+If you are using windows, there is a ready to run code for Visual Studio, branch is named windows_branch (you should have SFML installed).
 
 Cheers!
