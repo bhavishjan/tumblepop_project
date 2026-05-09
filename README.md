@@ -6,11 +6,12 @@ This project is not actually complete. I tried my best to do it but could not co
 But, in the process, I learned about the game, C++ and SFML libraries a lot.
 <br>
 
+There are compiling instructions in steps_to_compile.txt in main branch.
+<br>
+
 Will try to make something better than this.
 <br>
 
-If you are on linux, there are compiling instructions in steps_to_compile.txt in main branch.
-<br>
-If you are using windows, there is a ready to run code for Visual Studio, branch is named windows_branch (you should have SFML installed).
+
 
 Cheers!
